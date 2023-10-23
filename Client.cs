@@ -10,12 +10,14 @@ namespace ServerApplication
         public TcpClient Socket;
         public NetworkStream myStream;
         private byte[] readBuff;
+        private Packet receivedData;
 
         public void Start()
         {
             Socket.SendBufferSize = 4096;
             Socket.ReceiveBufferSize = 4096;
             myStream = Socket.GetStream();
+            receivedData = new Packet();
             Array.Resize(ref readBuff, Socket.ReceiveBufferSize);
             myStream.BeginRead(readBuff, 0, Socket.ReceiveBufferSize, OnReceiveData, null);
         }
@@ -68,7 +70,9 @@ namespace ServerApplication
                 {
                     return;
                 }
-
+                
+                receivedData.Reset(HandleData(newBytes));
+                
                 myStream.BeginRead(readBuff, 0, Socket.ReceiveBufferSize, OnReceiveData, null);
             }
             catch (Exception e)
@@ -77,6 +81,52 @@ namespace ServerApplication
                 CloseConnection();
                 return;
             }
+        }
+        
+        private bool HandleData(byte[] _data)
+        {
+            int _packetLength = 0;
+
+            receivedData.SetBytes(_data);
+
+            if (receivedData.UnreadLength() >= 4)
+            {
+                _packetLength = receivedData.ReadInt();
+                if (_packetLength <= 0)
+                {
+                    return true;
+                }
+            }
+
+            while (_packetLength > 0 && _packetLength <= receivedData.UnreadLength())
+            {
+                byte[] _packetBytes = receivedData.ReadBytes(_packetLength);
+                ThreadManager.ExecuteOnMainThread(() =>
+                {
+                    using (Packet _packet = new Packet(_packetBytes))
+                    {
+                        int _packetId = _packet.ReadInt();
+                        Network.PacketHandlers[_packetId](Index, _packet);
+                    }
+                });
+
+                _packetLength = 0;
+                if (receivedData.UnreadLength() >= 4)
+                {
+                    _packetLength = receivedData.ReadInt();
+                    if (_packetLength <= 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            if (_packetLength <= 1)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

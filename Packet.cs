@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,13 +7,21 @@ namespace ServerApplication
     /// <summary>Sent from server to client.</summary>
     public enum ServerPackets
     {
-        welcome = 1
+        welcome = 1,
+        register = 2,
+        login = 3,
+        getacc = 4,
+        createacc = 5
     }
 
     /// <summary>Sent from client to server.</summary>
     public enum ClientPackets
     {
-        welcomeReceived = 1
+        welcomeReceived = 1,
+        registerReceived = 2,
+        loginReceived = 3,
+        getaccountReceived = 4,
+        createaccReceived = 5
     }
 
     public class Packet : IDisposable

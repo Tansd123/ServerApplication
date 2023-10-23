@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Threading;
+using MySql.Data;
+using MySql.Data.MySqlClient;
+
 
 namespace ServerApplication
 {
@@ -10,29 +13,27 @@ namespace ServerApplication
 
         static void Main(string[] args)
         {
+            consoleRunning = true;
             threadConsole = new Thread(new ThreadStart(ConsoleThread));
             threadConsole.Start();
+            MySql.mysql.InitDatabase();
             Network.instance.ServerStart();
-            
         }
 
         private static void ConsoleThread()
         {
             string line;
-            consoleRunning = true;
-
+            Console.WriteLine($"Main Thread is started. Runing at {Constants.tps} ticks per second.");
+            DateTime _nextloop = DateTime.Now;
             while (consoleRunning)
             {
-                line = Console.ReadLine();
+                GameLogic.Update();
 
-                if (String.IsNullOrEmpty(line))
+                _nextloop = _nextloop.AddMilliseconds(Constants.mpt);
+
+                if (_nextloop > DateTime.Now)
                 {
-                    consoleRunning = false;
-                    return;
-                }
-                else
-                {
-                    
+                    Thread.Sleep(_nextloop - DateTime.Now);
                 }
             }
         }
