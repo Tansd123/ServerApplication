@@ -11,7 +11,10 @@ namespace ServerApplication
         register = 2,
         login = 3,
         getacc = 4,
-        createacc = 5
+        createacc = 5,
+        levelup =6,
+        gainexp =7,
+        getshop = 8
     }
 
     /// <summary>Sent from client to server.</summary>
@@ -21,7 +24,10 @@ namespace ServerApplication
         registerReceived = 2,
         loginReceived = 3,
         getaccountReceived = 4,
-        createaccReceived = 5
+        createaccReceived = 5,
+        levelupReceived =6,
+        gainexpReceived = 7,
+        getshopReceived =8
     }
 
     public class Packet : IDisposable
@@ -162,8 +168,8 @@ namespace ServerApplication
         /// <param name="_value">The string to add.</param>
         public void Write(string _value)
         {
-            Write(_value.Length); // Add the length of the string to the packet
-            buffer.AddRange(Encoding.ASCII.GetBytes(_value)); // Add the string itself
+            Write(Encoding.UTF8.GetByteCount(_value)); // Add the length of the string to the packet
+            buffer.AddRange(Encoding.UTF8.GetBytes(_value)); // Add the string itself
         }
         #endregion
 

@@ -11,7 +11,7 @@ namespace ServerApplication
         public NetworkStream myStream;
         private byte[] readBuff;
         private Packet receivedData;
-
+    
         public void Start()
         {
             Socket.SendBufferSize = 4096;
@@ -106,6 +106,7 @@ namespace ServerApplication
                     using (Packet _packet = new Packet(_packetBytes))
                     {
                         int _packetId = _packet.ReadInt();
+                        Console.WriteLine("[ID: " + Index.ToString() + "] Rev Msg: " + _packetId.ToString());
                         Network.PacketHandlers[_packetId](Index, _packet);
                     }
                 });
@@ -128,5 +129,7 @@ namespace ServerApplication
 
             return false;
         }
+        
+        
     }
 }

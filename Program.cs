@@ -1,7 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
-using MySql.Data;
-using MySql.Data.MySqlClient;
+
 
 
 namespace ServerApplication
@@ -20,6 +20,8 @@ namespace ServerApplication
             Network.instance.ServerStart();
         }
 
+        
+
         private static void ConsoleThread()
         {
             string line;
@@ -28,13 +30,7 @@ namespace ServerApplication
             while (consoleRunning)
             {
                 GameLogic.Update();
-
-                _nextloop = _nextloop.AddMilliseconds(Constants.mpt);
-
-                if (_nextloop > DateTime.Now)
-                {
-                    Thread.Sleep(_nextloop - DateTime.Now);
-                }
+                
             }
         }
     }
