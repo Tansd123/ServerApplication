@@ -129,7 +129,8 @@ namespace ServerApplication
                 { (int)ClientPackets.createaccReceived, ServerHandle.CreateAccReceived},
                 { (int)ClientPackets.levelupReceived, ServerHandle.LevelUpReceived},
                 { (int)ClientPackets.gainexpReceived, ServerHandle.GainExpReceived},
-                { (int)ClientPackets.getshopReceived, ServerHandle.GetShopReceived}
+                { (int)ClientPackets.getshopReceived, ServerHandle.GetShopReceived},
+                { (int)ClientPackets.getaquariumReceived, ServerHandle.GetAquariumReceived}
             };
             
             Console.WriteLine("Install Packet");

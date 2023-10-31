@@ -111,5 +111,38 @@ namespace ServerApplication
             int _clientIdCheck = _packet.ReadInt();
             ServerSend.GetShop(_fromClient);
         }
+
+        public static void GetAquariumReceived(int _fromClient, Packet _packet)
+        {
+            int _clientIdCheck = _packet.ReadInt();
+            int Uin = _packet.ReadInt();
+            int numaqua, numfish = 0;
+            Aquarium[] aquarium;
+            Fish[] fishs = new Fish[] { };
+            MySql.mysql.getaquarium(Uin, out aquarium, out numaqua);
+            for (int i = 0; i < numaqua; i++)
+            {
+                MySql.mysql.getfish(i, out fishs, out numfish);
+            }
+            ServerSend.GetAquarium(_fromClient, aquarium, numaqua, fishs, numfish);
+        }
+        
+    }
+
+    public class Aquarium
+    {
+        public int ID;
+        public int Slot;
+        public int MaxFish;
+        public int CurFish;
+    }
+
+    public class Fish
+    {
+        public int FishID;
+        public int IDAqua;
+        public int Level;
+        public float Food;
+        public float Grow;
     }
 }

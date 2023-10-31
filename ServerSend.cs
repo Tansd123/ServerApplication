@@ -64,7 +64,6 @@ namespace ServerApplication
                 _packet.Write(Exp);
                 _packet.Write(Gold);
                 _packet.Write(MaxExp);
-                Console.WriteLine($"{Exp}");
                 SendTCPData(_toClient, (int)ServerPackets.getacc, _packet);
                
             }
@@ -131,6 +130,36 @@ namespace ServerApplication
                 _packet.Write(unknow);
                 SendTCPData(_toClient, (int)ServerPackets.getshop, _packet);
                
+            }
+        }
+
+        public static void GetAquarium(int _toClient, Aquarium[] Aquariums, int numaqua, Fish[] Fishs, int numfish)
+        {
+            using (Packet _packet = new Packet((int)ServerPackets.getaquarium))
+            {
+                _packet.Write(numaqua);
+                foreach (var aqua in Aquariums)
+                {
+                    _packet.Write(aqua.ID);
+                    _packet.Write(aqua.Slot);
+                    _packet.Write(aqua.MaxFish);
+                    _packet.Write(aqua.CurFish);
+                    int curfish = 0;
+                    while (curfish <= aqua.CurFish)
+                    {
+                        foreach (var fish in Fishs)
+                        {
+                            if (fish.IDAqua == aqua.ID)
+                            {
+                                curfish++;
+                                _packet.Write(fish.FishID);
+                                _packet.Write(fish.Level);
+                                _packet.Write(fish.Food);
+                                _packet.Write(fish.Grow);
+                            }
+                        }
+                    }
+                }
             }
         }
         
