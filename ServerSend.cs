@@ -140,26 +140,56 @@ namespace ServerApplication
                 _packet.Write(numaqua);
                 foreach (var aqua in Aquariums)
                 {
-                    _packet.Write(aqua.ID);
-                    _packet.Write(aqua.Slot);
-                    _packet.Write(aqua.MaxFish);
-                    _packet.Write(aqua.CurFish);
-                    int curfish = 0;
-                    while (curfish <= aqua.CurFish)
+                    if (aqua != null) // Kiểm tra xem aqua có là null không
                     {
-                        foreach (var fish in Fishs)
+                        _packet.Write(aqua.ID);
+                        _packet.Write(aqua.Slot);
+                        _packet.Write(aqua.MaxFish);
+                        _packet.Write(aqua.CurFish);
+                        int curfish = 0;
+                        while (curfish < aqua.CurFish)
                         {
-                            if (fish.IDAqua == aqua.ID)
+                            foreach (var fish in Fishs)
                             {
-                                curfish++;
-                                _packet.Write(fish.FishID);
-                                _packet.Write(fish.Level);
-                                _packet.Write(fish.Food);
-                                _packet.Write(fish.Grow);
+                                if (fish != null)
+                                {
+                                    if (fish.IDAqua == aqua.ID)
+                                    {
+                                        _packet.Write(fish.IDAqua);
+                                        curfish++;
+                                        _packet.Write(fish.ID);
+                                        _packet.Write(fish.FishID);
+                                        _packet.Write(fish.name);
+                                        _packet.Write(fish.Level);
+                                        _packet.Write(fish.Food);
+                                        _packet.Write(fish.Grow);
+                                        _packet.Write(fish.Gender);
+                                        _packet.Write(fish.gold);
+                                        _packet.Write(fish.exp);
+                                    }
+                                }
                             }
                         }
                     }
                 }
+                SendTCPData(_toClient, (int)ServerPackets.getaquarium, _packet);
+            }
+        }
+
+        public static void buyfish(int _toClient, int result, Fish fish, int ID)
+        {
+            using (Packet _packet = new Packet((int)ServerPackets.buyfish))
+            {
+                _packet.Write(result);
+                _packet.Write(ID);
+                _packet.Write(fish.FishID);
+                _packet.Write(fish.name);
+                _packet.Write(fish.Gender);
+                _packet.Write(fish.Level);
+                _packet.Write(fish.Grow);
+                _packet.Write(fish.gold);
+                _packet.Write(fish.exp);
+                SendTCPData(_toClient, (int)ServerPackets.buyfish, _packet);
             }
         }
         

@@ -82,6 +82,7 @@ namespace ServerApplication
             {
                 result = 0;
                 MySql.mysql.CreateAcc(Uin, Username);
+                MySql.mysql.createaquarium(Uin, 1);
             }
             ServerSend.Regacc(_fromClient, result);
         }
@@ -117,32 +118,71 @@ namespace ServerApplication
             int _clientIdCheck = _packet.ReadInt();
             int Uin = _packet.ReadInt();
             int numaqua, numfish = 0;
-            Aquarium[] aquarium;
+            Aquarium[] aquarium = new Aquarium[5];
             Fish[] fishs = new Fish[] { };
             MySql.mysql.getaquarium(Uin, out aquarium, out numaqua);
-            for (int i = 0; i < numaqua; i++)
+            for (int i = 1; i <= numaqua; i++)
             {
                 MySql.mysql.getfish(i, out fishs, out numfish);
             }
             ServerSend.GetAquarium(_fromClient, aquarium, numaqua, fishs, numfish);
         }
         
+        public static void BuyFish(int _fromClient,Packet _packet)
+        {
+            int _clientIdCheck = _packet.ReadInt();
+            Fish fish = new Fish();
+            int Uin = _packet.ReadInt();
+            fish.FishID = _packet.ReadInt();
+            fish.name = _packet.ReadString();
+            fish.Gender = _packet.ReadInt();
+            fish.IDAqua = _packet.ReadInt();
+            int cost = _packet.ReadInt();
+            fish.exp = _packet.ReadFloat();
+            fish.gold = _packet.ReadInt();
+            int ID = 0;
+            
+            if (MySql.mysql.checkcost(cost, Uin))
+            {
+                MySql.mysql.addFish(fish.FishID, fish.IDAqua, fish.name, fish.Gender, fish.gold, fish.exp);
+                MySql.mysql.GoldRemove(cost, Uin);
+                ServerSend.buyfish(_fromClient, 1, fish, ID);
+            }
+            ServerSend.buyfish(_fromClient, 0, fish, ID);
+            
+        }
+
+        public static void Eatting(int _fromClient, Packet _packet)
+        {
+            int _clientIdCheck = _packet.ReadInt();
+            int ID = _packet.ReadInt();
+            float Food = _packet.ReadInt();
+        }
+        
+        
     }
 
     public class Aquarium
     {
-        public int ID;
-        public int Slot;
-        public int MaxFish;
-        public int CurFish;
+        public int ID = 0 ;
+        public int Slot = 0;
+        public int MaxFish = 0;
+        public int CurFish = 0;
     }
 
     public class Fish
     {
+        public int ID;
         public int FishID;
         public int IDAqua;
+        public string name;
         public int Level;
         public float Food;
         public float Grow;
+        public int Gender;
+        public int gold;
+        public float exp;
     }
+    
+    
 }

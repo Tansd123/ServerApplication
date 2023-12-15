@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel.Design;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using MySql.Data.MySqlClient;
 
@@ -216,6 +218,23 @@ namespace ServerApplication
             }
         }
 
+        public bool checkcost(int cost, int Uin)
+        {
+            string query = "SELECT  Gold FROM users WHERE Uin = @uin";
+            MySqlCommand command = new MySqlCommand(query, connect);
+            command.Parameters.AddWithValue("@uin", Uin.ToString());
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    if (cost >= reader.GetInt32("Gold")) return true;
+                    else return false;
+                }
+            }
+
+            return false;
+        }
+        
         public void GoldRemove(int cost, int Uin)
         {
             string query = $"UPDATE users SET Gold = Gold - {cost.ToString()} WHERE Uin = {Uin.ToString()}"; //UpdateGold
@@ -224,12 +243,13 @@ namespace ServerApplication
             
         }
 
-        public void addFish(int ItemId, int IDAquarium)
+        public void addFish(int ItemId, int IDAqua, string name, int g, int coin, float exp)
         {
-            MySqlCommand command = new MySqlCommand("UPDATE aquarium SET curfish = curfish + 1 WHERE ID = {IDAquarium.ToString()}", connect); // Update CurFish
+            string query = $"UPDATE aquarium SET CurFish = CurFish + 1 WHERE ID = {IDAqua.ToString()}";
+            MySqlCommand command = new MySqlCommand(query, connect); // Update CurFish
             command.ExecuteNonQuery();
             
-            string query = "INSERT INTO fish (IDAquarium, ItemID) VALUES ({ItemId}, {IDAquarium});"; // Create Fish Row
+            query = $"INSERT INTO fish (IDAquarium, ItemID, Name, Level, Food, Grow, Gender, Coin, Exp) VALUES ({IDAqua.ToString()}, {ItemId.ToString()}, {name}, 1 , 0 , 0, {g.ToString()}, {coin.ToString()}, {exp.ToString()});"; // Add Item to Table
             command = new MySqlCommand(query, connect);
             command.ExecuteNonQuery();
         }
@@ -243,7 +263,7 @@ namespace ServerApplication
 
         public void getaquarium(int Uin, out Aquarium[] Aquariums, out int numaqua)
         {
-            Aquariums = new Aquarium[] {};
+            Aquariums = new Aquarium[5];
             numaqua = 0;
             string query = "SELECT ID, Slot, MaxFish, CurFish FROM aquarium WHERE Uin = @uin"; //Find Data Aquarium
             MySqlCommand command = new MySqlCommand(query, connect);
@@ -252,6 +272,7 @@ namespace ServerApplication
             {
                 while (reader.Read())
                 {
+                    Aquariums[numaqua] = new Aquarium();
                     Aquariums[numaqua].ID = reader.GetInt32("ID");
                     Aquariums[numaqua].Slot = reader.GetInt32("Slot");
                     Aquariums[numaqua].MaxFish = reader.GetInt32("MaxFish");
@@ -263,23 +284,51 @@ namespace ServerApplication
 
         public void getfish(int IDAqua, out Fish[] fishs, out int numfish)
         {
-            fishs = new Fish[] {};
+            fishs = new Fish[20];
             numfish = 0;
-            string query = "SELECT ItemID, Level, Food, Grow FROM fish WHERE IDAquarium = @ID";
+            string query = "SELECT ID,ItemID, Name, Level, Food, Grow,Gender,Coin,Exp, IDAquarium FROM fish WHERE IDAquarium = @ID";
             MySqlCommand command = new MySqlCommand(query, connect);
             command.Parameters.AddWithValue("@ID", IDAqua.ToString());
             using (MySqlDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
+                    fishs[numfish] = new Fish();
+                    fishs[numfish].ID = reader.GetInt32("ID");
                     fishs[numfish].FishID = reader.GetInt32("ItemID");
+                    fishs[numfish].name = reader.GetString("Name");
                     fishs[numfish].Level = reader.GetInt32("Level");
                     fishs[numfish].Food = reader.GetFloat("Food");
                     fishs[numfish].Grow = reader.GetFloat("Grow");
-                    fishs[numfish].IDAqua = numfish;
+                    fishs[numfish].Gender = reader.GetInt32("Gender");
+                    fishs[numfish].IDAqua = reader.GetInt32("IDAquarium");
+                    fishs[numfish].gold = reader.GetInt32("Coin");
+                    fishs[numfish].exp = reader.GetFloat("Exp");
+                    Console.WriteLine(fishs[numfish].FishID);
                     numfish++;
                 }
             }
+        }
+
+        public void createaquarium(int Uin, int Slot)
+        {
+            string query = "INSERT INTO aquarium (Uin, Slot) VALUES ({Uin}, {Slot});"; // Add Item to Table
+            MySqlCommand command = new MySqlCommand(query, connect);
+            command.ExecuteNonQuery();
+        }
+
+        public void buyfish(int IDAqua, int id, int g, out int ID)
+        {
+            string query = "INSERT INTO fish (IDAquairum, ItemID, Gender) VALUES ({IDAqua}, {id}, {g});"; // Add Item to Table
+            MySqlCommand command = new MySqlCommand(query, connect);
+            command.ExecuteNonQuery();
+            int lastInsertedId = Convert.ToInt32(command.LastInsertedId);
+            ID = lastInsertedId;
+        }
+
+        public void eatting(int ID, float food)
+        {
+            
         }
         
     }

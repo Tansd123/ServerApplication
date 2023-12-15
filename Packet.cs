@@ -15,7 +15,9 @@ namespace ServerApplication
         levelup =6,
         gainexp =7,
         getshop = 8,
-        getaquarium =9
+        getaquarium =9,
+        buyfish = 10,
+        eatting = 11,
     }
 
     /// <summary>Sent from client to server.</summary>
@@ -29,7 +31,9 @@ namespace ServerApplication
         levelupReceived =6,
         gainexpReceived = 7,
         getshopReceived =8,
-        getaquariumReceived =9
+        getaquariumReceived =9,
+        buyfish=10,
+        eatting = 11
     }
 
     public class Packet : IDisposable
